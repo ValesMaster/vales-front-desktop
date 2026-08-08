@@ -1,14 +1,16 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { login } from "../api/routes";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    
     event.preventDefault();
     setError("");
 
@@ -16,20 +18,19 @@ export default function Login() {
       setError("Correo y contraseña son requeridos.");
       return;
     }
-
     setIsLoading(true);
 
     try {
-      // TODO: conectar con tu backend real aquí.
-      // Ejemplo:
-      // const response = await fetch("/api/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ email, password, rememberMe }),
-      // });
+        console.log(email, password);
+      //aca deberia ir un if por rol
+      const response = await login(email, password);
+      localStorage.setItem("token", response.mfaToken);
+      console.log("Login successful:", response.mfaToken);
+
     } catch {
       setError("No se pudo iniciar sesión. Intenta de nuevo.");
     } finally {
+      window.location.href = "/login/totp";
       setIsLoading(false);
     }
   };
@@ -109,6 +110,12 @@ export default function Login() {
               />
               <label htmlFor="remember-me" className="ml-2 text-[16px] text-[#d3c2cb]">
                 Recordarme
+              </label>
+            </div>
+              <div className="flex items-center">
+
+              <label htmlFor="remember-me" className="ml-2 text-[16px] text-[#d3c2cb]">
+                No tienes cuenta? <a href="/register" className="text-[#EAA5A7] hover:underline">Regístrate</a>
               </label>
             </div>
 
