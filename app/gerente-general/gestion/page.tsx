@@ -13,7 +13,7 @@ export default function GestionUsuariosPage() {
         const fetchEmpleados = async () => {
             try {
                 const response = await consultarempleados(
-                    { roles: ['admin', 'analyst', 'supervisor'] },
+                    { roles: [] },
                     localStorage.getItem('token') || ''
                 );
 

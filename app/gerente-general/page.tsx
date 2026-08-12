@@ -1,7 +1,45 @@
+"use client"
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { consultarempleados } from "./../api/routes";
+
 export default function GerenteGeneralPage() {
+    const router = useRouter();
+    const [empleados, setEmpleados] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            router.replace('/login');
+            return;
+        }
+
+        const fetchEmpleados = async () => {
+            try {
+                const response = await consultarempleados(
+                    { roles: []},
+                    token,
+                );
+                console.log(response);
+                const empleadosData = Array.isArray(response?.data) ? response.data : [];
+                setEmpleados(empleadosData);
+            } catch (error) {
+                console.error('Error cargando empleados:', error);
+                setEmpleados([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEmpleados();
+    }, [router]);
+
     const stats = [
         { label: 'Solicitudes', value: '1,284', trend: '+12.4%' },
-        { label: 'Usuarios', value: '328', trend: '+8.1%' },
+        { label: 'Usuarios', value: loading ? '...' : String(empleados.length), trend: '+8.1%' },
         { label: 'Vales activos', value: '$48.6K', trend: '+5.3%' },
 
     ];
@@ -18,14 +56,27 @@ export default function GerenteGeneralPage() {
                         <h1 className="mt-2 text-3xl font-bold text-[#f5efff]">Panel General</h1>
                     </div>
 
-                    <div className="flex items-center gap-3 rounded-xl border border-[#4f434b] bg-[#2d253d] px-4 py-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#844A79] text-sm font-bold text-white">
-                            GG
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 rounded-xl border border-[#4f434b] bg-[#2d253d] px-4 py-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#844A79] text-sm font-bold text-white">
+                                GG
+                            </div>
+                            <div>
+                                <p className="text-sm font-semibold text-[#e4dfff]">Gerente General</p>
+                                <p className="text-xs text-[#d3c2cb]">Última sesión: hoy</p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm font-semibold text-[#e4dfff]">Gerente General</p>
-                            <p className="text-xs text-[#d3c2cb]">Última sesión: hoy</p>
-                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                localStorage.removeItem('token');
+                                window.location.href = '/login';
+                            }}
+                            className="rounded-xl border border-[#EAA5A7] bg-[#844A79] px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+                        >
+                            Cerrar sesión
+                        </button>
                     </div>
                 </header>
 

@@ -8,9 +8,9 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [totptrue, setTtotptrue] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    
     event.preventDefault();
     setError("");
 
@@ -18,19 +18,37 @@ export default function Login() {
       setError("Correo y contraseña son requeridos.");
       return;
     }
+
     setIsLoading(true);
 
     try {
-        console.log(email, password);
-      //aca deberia ir un if por rol
       const response = await login(email, password);
-      localStorage.setItem("token", response.mfaToken);
-      console.log("Login successful:", response.mfaToken);
 
+      if (response?.status === 400 || response?.data?.message || response?.data?.error) {
+        setError(response?.data?.message || response?.data?.error || "Credenciales inválidas.");
+        setIsLoading(false);
+        return;
+      }
+
+      const token = response?.mfaToken || response?.accessToken || response?.token;
+
+      if (!token) {
+        setError("No se recibió un token válido.");
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem("token", token);
+
+      if (response?.totpConfigured === true) {
+        window.location.href = "/login/totp";
+        return;
+      }
+
+      window.location.href = "/login/totp/first";
     } catch {
       setError("No se pudo iniciar sesión. Intenta de nuevo.");
     } finally {
-      window.location.href = "/login/totp";
       setIsLoading(false);
     }
   };

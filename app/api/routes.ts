@@ -24,7 +24,7 @@ export interface CreateAccountInterface {
     comprobante_domicilio?: string;
 }
 const api = axios.create({
-    baseURL: 'http://143.198.152.9:4000',
+    baseURL: 'http://127.0.0.1:2552',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
@@ -66,10 +66,61 @@ export async function setupTOTP(token: string) {
         throw error;
     }
 }
-export async function verifytotp(code: string, token: string) {
+export async function enableTotp(token: string, code: string) {
     try {
-        const response = await api.post('api/totp/verify', { token,code },
+        const response = await api.post(
+            'api/totp/enable',
+            {code},
+            {
+                
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
         );
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response;
+        }
+        throw error;
+    }
+}
+export async function verifytotp({
+    mfaToken,
+    code,
+}: {
+    mfaToken: string;
+    code: string;
+}) {
+    try {
+        const response = await api.post('api/totp/verify', {
+            mfaToken,
+            code,
+        });
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response;
+        }
+        throw error;
+    }
+}
+export async function questionsFirst({
+    mfaToken,
+    securityQuestions,
+}: {
+    mfaToken: string;
+    securityQuestions: Array<{
+        question: string;
+        answer: string;
+    }>;
+}) {
+    try {
+        const response = await api.post('api/security/setup', {
+            mfaToken,
+            securityQuestions,
+        });
         return response.data;
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
@@ -78,7 +129,27 @@ export async function verifytotp(code: string, token: string) {
         throw error;
     }
 }
+export async function verifyQuestions({
+    mfaToken,
+    code,
+}: {
+    mfaToken: string;
+    code: string;
+}) {
+    try {
+        const response = await api.post('api/totp/verify', {
+            mfaToken,
+            code,
+        });
 
+        return Boolean(response?.data?.securityQuestionsConfigured ?? false);
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return Boolean(error.response?.data?.securityQuestionsConfigured ?? false);
+        }
+        throw error;
+    }
+}
 export async function consultarempleados({
     roles,
     sucursalId,
@@ -96,11 +167,11 @@ export async function consultarempleados({
         const queryParams: Record<string, string> = {};
 
         if (roles !== undefined && roles !== null && roles !== '') {
-            const cleanRoles = Array.isArray(roles)
-                ? roles
-                    .map((role) => String(role).trim())
-                    .filter((role) => role !== '' && role !== 'undefined' && role !== 'null' && !Number.isNaN(Number(role)))
-                : [String(roles).trim()];
+            const rawRoles = Array.isArray(roles) ? roles : [roles];
+            const cleanRoles = rawRoles
+                .flatMap((role) => String(role).split(','))
+                .map((role) => role.trim())
+                .filter((role) => /^\d+$/.test(role));
 
             if (cleanRoles.length > 0) {
                 queryParams.roles = cleanRoles.join(',');
@@ -148,5 +219,35 @@ export async function obtenerEmpleado(id: number) {
         throw error;
     }
 }
+export async function verifytoken(token: string) {
+    try {
+        const response = await api.get('api/auth/validate-token', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
 
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+export async function getSecurityQuestions(mfaToken: string) {
+    try {
+        const response = await api.post('api/security/questions', {
+            mfaToken,
+        });
+
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
 export default api;
