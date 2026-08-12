@@ -245,13 +245,11 @@ export default function Register() {
             password,
         };
 
-        console.log('Registro enviado:', userData);
 
          
         try {
             setIsLoading(true);
             const responseUser = await createAccount(userData);
-            console.log(responseUser, "respuesta de crear usuario");
             if (responseUser.error?.noCode == 430) {
                 showAlert('No puedes usar ese número de teléfono');
                 setIsLoading(false);
@@ -292,7 +290,6 @@ export default function Register() {
                     window.location.href = '/';
                 } else {
                     console.error('Error creating address');
-                    console.log('Address response:', addressResponse);
                     showAlert('Verifica los datos de la direccion');
                 }
             } else {

@@ -45,7 +45,6 @@ export default function PreguntaAutenticacionPage() {
                     },
                 ],
             });
-            console.log(response,"respuesta q el puto de oz me da");
 
             if (response?.status === 400 || response?.message || response?.error) {
                 setError(response?.message || response?.error || "No se pudo guardar la pregunta de seguridad.");

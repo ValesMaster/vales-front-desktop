@@ -23,7 +23,6 @@ export default function GerenteGeneralPage() {
                     { roles: []},
                     token,
                 );
-                console.log(response);
                 const empleadosData = Array.isArray(response?.data) ? response.data : [];
                 setEmpleados(empleadosData);
             } catch (error) {

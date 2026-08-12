@@ -15,7 +15,6 @@ export default function Totp() {
         const fetchTOTP = async () => {
             try {
                 const response = await setupTOTP(token);
-                console.log("TOTP setup successful:", response);
                 const value = response.qr
                 setBase64(value);
             } catch (error) {

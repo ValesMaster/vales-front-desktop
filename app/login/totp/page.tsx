@@ -13,7 +13,6 @@ export default function Totp() {
         const fetchTOTP = async () => {
             try {
                 const response = await setupTOTP(token);
-                console.log("TOTP setup successful:", response);
                 const value = response.qr
             } catch (error) {
                 console.error('Error fetching TOTP:', error);

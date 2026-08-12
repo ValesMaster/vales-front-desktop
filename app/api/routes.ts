@@ -24,7 +24,7 @@ export interface CreateAccountInterface {
     comprobante_domicilio?: string;
 }
 const api = axios.create({
-    baseURL: 'http://127.0.0.1:2552',
+    baseURL: 'http://143.198.152.9:4000',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
