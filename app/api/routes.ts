@@ -70,9 +70,9 @@ export async function enableTotp(token: string, code: string) {
     try {
         const response = await api.post(
             'api/totp/enable',
-            {code},
+            { code },
             {
-                
+
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
