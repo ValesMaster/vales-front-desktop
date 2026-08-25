@@ -119,23 +119,8 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 rounded border-[#4f434b] bg-[#34324b] text-[#844A79] focus:ring-[#EAA5A7]"
-              />
-              <label htmlFor="remember-me" className="ml-2 text-[16px] text-[#d3c2cb]">
-                Recordarme
-              </label>
-            </div>
-              <div className="flex items-center">
-
-              <label htmlFor="remember-me" className="ml-2 text-[16px] text-[#d3c2cb]">
-                No tienes cuenta? <a href="/register" className="text-[#EAA5A7] hover:underline">Regístrate</a>
-              </label>
-            </div>
+     
+          
 
             {error ? (
               <p className="text-sm text-[#ffb4ab]">{error}</p>
