@@ -26,7 +26,7 @@ export interface CreateAccountInterface {
 const api = axios.create({
     // http://143.198.152.9:4000
     // 127.0.0.1
-    baseURL: 'https://pastelito/api',
+    baseURL: 'https://pastelito/',
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
