@@ -517,7 +517,7 @@ export async function aprobarSolicitud(
     token?: string,
 ) {
     try {
-        const response = await api.post(`api/vales/aprobar/${id}`, payload, {
+        const response = await api.post(`api/solicitudes/aprobar/${id}`, payload, {
             headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
 
