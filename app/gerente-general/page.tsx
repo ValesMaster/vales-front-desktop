@@ -57,12 +57,12 @@ const getRoleIdFromPayload = (payload: unknown): number | null => {
     const directRoleId = normalizeRoleId(
         typeof payload === 'object' && payload !== null
             ? (payload as Record<string, unknown>).rolId
-                ?? (payload as Record<string, unknown>).roleId
-                ?? (payload as Record<string, unknown>).rol_id
-                ?? (payload as Record<string, unknown>).role_id
-                ?? (payload as Record<string, unknown>).rol
-                ?? (payload as Record<string, unknown>).role
-                ?? (payload as Record<string, unknown>).roles
+            ?? (payload as Record<string, unknown>).roleId
+            ?? (payload as Record<string, unknown>).rol_id
+            ?? (payload as Record<string, unknown>).role_id
+            ?? (payload as Record<string, unknown>).rol
+            ?? (payload as Record<string, unknown>).role
+            ?? (payload as Record<string, unknown>).roles
             : null,
     );
 
@@ -176,14 +176,19 @@ export default function GerenteGeneralPage() {
     const isAdmin = userRoleId === 7 || userRoleName === 'administrador';
     const isBranchManager = userRoleId === 3 || userRoleId === 7 || userRoleName === 'gerente de sucursal' || userRoleName === 'administrador';
     const isRoleResolved = userRoleId !== null || userRoleName !== null;
-    const actions = [
-        { label: 'Gestionar usuarios', href: '/gerente-general/gestion' },
-        { label: 'Conciliación de pagos', href: '/gerente-general/conciliaciones' },
-        ...(isRoleResolved && !isBranchManager ? [{ label: 'Gestionar sucursales', href: '/gerente-general/sucursales' }] : []),
-        ...(isAdmin ? [{ label: 'Ver auditorías', href: '/gerente-general/auditorias' }] : []),
- 
-    ];
+const isRequestsManager =
+    userRoleId === 3 ||
+    userRoleId === 4 ||
+    userRoleName === 'gerente_general' ||
+    userRoleName === 'gerente_sucursal'; // <-- reemplaza con el nombre real del rol 4
 
+const actions = [
+    { label: 'Gestionar usuarios', href: '/gerente-general/gestion' },
+    { label: 'Conciliación de pagos', href: '/gerente-general/conciliaciones' },
+    ...(isRoleResolved && !isBranchManager ? [{ label: 'Gestionar sucursales', href: '/gerente-general/sucursales' }] : []),
+    ...(isAdmin ? [{ label: 'Ver auditorías', href: '/gerente-general/auditorias' }] : []),
+    ...(isRequestsManager ? [{ label: 'Solicitudes', href: '/gerente-general/solicitudes' }] : []),
+];
     const stats = [
         /* { label: 'Solicitudes', value: '1,284', trend: '+12.4%' },*/
         { label: 'Usuarios', value: loading ? '...' : String(empleados.length) },
@@ -229,7 +234,7 @@ export default function GerenteGeneralPage() {
                             <p className="text-sm text-[#d3c2cb]">{stat.label}</p>
                             <div className="mt-4 flex items-end justify-between">
                                 <h2 className="text-3xl font-bold text-[#f5efff]">{stat.value}</h2>
-                    
+
                             </div>
                         </div>
                     ))}
