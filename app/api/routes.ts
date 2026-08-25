@@ -463,6 +463,73 @@ export async function obtenerAuditLogs({
     }
 }
 
+export type ObtenerSolicitudesParams = {
+    page?: number | string;
+    limit?: number | string;
+    estado?: string;
+    gerente_id?: number | string;
+};
+
+export type AprobarSolicitudPayload =
+    | {
+        estado: "APROBADA";
+        user_name: string;
+        user_password: string;
+    }
+    | {
+        estado: "RECHAZADA";
+        user_name?: string;
+        user_password?: string;
+    };
+
+export async function obtenerSolicitudes(
+    { page = 1, limit = 15, estado, gerente_id }: ObtenerSolicitudesParams = {},
+    token?: string,
+) {
+    try {
+        const params: Record<string, string> = {
+            page: String(page),
+            limit: String(limit),
+        };
+
+        if (estado) params.estado = estado;
+        if (gerente_id !== undefined && gerente_id !== null && gerente_id !== "") {
+            params.gerente_id = String(gerente_id);
+        }
+
+        const response = await api.get("api/solicitudes/obtener-solicitudes", {
+            params,
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+
+        return response?.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+export async function aprobarSolicitud(
+    id: number | string,
+    payload: AprobarSolicitudPayload,
+    token?: string,
+) {
+    try {
+        const response = await api.post(`api/vales/aprobar/${id}`, payload, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+
+        return response?.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
 export type ConciliacionPagosParams = {
     page?: number | string;
     limit?: number | string;
@@ -475,11 +542,7 @@ const getConciliacion = async (
     token?: string,
 ) => {
     try {
-        const params: Record<string, string> = {
-            page: String(page),
-            limit: String(limit),
-        };
-
+        const params: Record<string, string> = { page: String(page), limit: String(limit) };
         if (distribuidora_id !== undefined && distribuidora_id !== null && distribuidora_id !== "") {
             params.distribuidora_id = String(distribuidora_id);
         }
@@ -491,9 +554,7 @@ const getConciliacion = async (
 
         return response?.data;
     } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            return error.response.data;
-        }
+        if (axios.isAxiosError(error) && error.response) return error.response.data;
         throw error;
     }
 };
