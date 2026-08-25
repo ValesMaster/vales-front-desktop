@@ -24,9 +24,9 @@ export interface CreateAccountInterface {
     comprobante_domicilio?: string;
 }
 const api = axios.create({
-     // http://143.198.152.9:4000
+    // http://143.198.152.9:4000
     // 127.0.0.1
-    baseURL: 'http://143.198.152.9:4000',
+    baseURL: 'https://pastelito/api',
     timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
@@ -281,7 +281,7 @@ export async function obtenerSucursales(token?: string) {
         const response = await api.get('api/gerentes/obtener/sucursales-selector', {
             headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });
-        
+
         const data = response?.data?.data ?? response?.data ?? [];
 
         if (!Array.isArray(data)) return data;
