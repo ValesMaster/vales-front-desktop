@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useState } from "react";
 import {
     emailRegex,
@@ -246,12 +245,13 @@ export default function Register() {
             password,
         };
 
+
+         
         try {
             setIsLoading(true);
-            const { registerUser } = await import('../api/routes');
-            const responseUser = (await registerUser(userData as any)) as any;
+            const responseUser = await createAccount(userData);
             if (responseUser.error?.noCode == 430) {
-                alert('No puedes usar ese número de teléfono');
+                showAlert('No puedes usar ese número de teléfono');
                 setIsLoading(false);
                 return;
             }
@@ -261,7 +261,7 @@ export default function Register() {
 
                 if (!resPartnerId) {
                     console.error('El usuario no tiene un res_partner_id');
-                    alert('Error al crear el usuario. Falta información.');
+                    showAlert('Error al crear el usuario. Falta información.');
                     setIsLoading(false);
                     return;
                 }
@@ -277,23 +277,20 @@ export default function Register() {
                     res_partner_id: resPartnerId
                 };
 
-                // Función temporal porque createAddress no existe en el código base
-                const createAddress = async (data: any) => { return { success: true }; };
                 const addressResponse = await createAddress(addressData);
 
                 if (addressResponse.success) {
 
-                    const setCookie = (name: string, value: string) => { document.cookie = `${name}=${value}; path=/`; };
                     localStorage.setItem('token', responseUser.data.data.access_token);
                     setCookie('token', responseUser.data.data.access_token);
                     setCookie('user', responseUser.data_odoo?.result?.token || '');
 
-                    alert('Usuario creado exitosamente');
+                    showAlert('Usuario creado exitosamente');
                     setIsLoading(false);
                     window.location.href = '/';
                 } else {
                     console.error('Error creating address');
-                    alert('Verifica los datos de la direccion');
+                    showAlert('Verifica los datos de la direccion');
                 }
             } else {
                 console.error('Error creating user', e, responseUser.error);
