@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import {
     emailRegex,
@@ -12,6 +14,7 @@ import {
     comprobanteDomicilioRegex,
      usernameRegex, referenciaRegex, postalCodeRegex, streetNumberRegex, streetNameRegex 
 } from "../utils/regex";
+import { registerUser as createAccount } from "../api/routes";
 
 export default function Register() {
 
@@ -222,7 +225,7 @@ export default function Register() {
             id,
             nombres: nombre,
             username,
-            rolId,
+            rolId: rolId ?? undefined,
             apellidoPaterno,
             apellidoMaterno,
             fechaNacimiento,
@@ -238,12 +241,12 @@ export default function Register() {
             calle,
             numeroExterior,
             referencia,
-            direccion_id: direccionId,
+            direccion_id: direccionId ?? undefined,
             comprobante_domicilio: comprobanteDomicilio,
             deleted_at: deletedAt,
             email,
             password,
-        };
+        } as any;
 
 
          

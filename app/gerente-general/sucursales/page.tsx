@@ -57,9 +57,10 @@ const sanitizeFieldValue = (field: keyof typeof EMPTY_FORM, value: string) => {
 };
 
 const isActive = (branch: Partial<Branch>) => {
-    if (typeof branch.activo === "boolean") return branch.activo;
-    if (typeof branch.activo === "string") return branch.activo.toLowerCase() === "true" || branch.activo.toLowerCase() === "activo";
-    if (typeof branch.activo === "number") return branch.activo === 1;
+    const activo: unknown = branch.activo;
+    if (typeof activo === "boolean") return activo;
+    if (typeof activo === "string") return activo.toLowerCase() === "true" || activo.toLowerCase() === "activo";
+    if (typeof activo === "number") return activo === 1;
     return true;
 };
 
