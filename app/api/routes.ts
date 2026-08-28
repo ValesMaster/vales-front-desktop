@@ -669,5 +669,132 @@ export async function modificarEmpleado(id: number | string, payload: Record<str
     }
 }
 
+// ---- Endpoints de cajera ----
+
+export async function obtenerDistribuidorasCajera(token?: string) {
+    try {
+        const response = await api.get('api/cajeras/distribuidoras', {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        return response?.data?.data ?? response?.data ?? [];
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+export async function canjearPuntos(payload: { id_distribuidora: number; cantidad_canjeada: number }, token?: string) {
+    try {
+        const response = await api.post('api/cajeras/canjear', payload, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        return response?.data ?? null;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+export type ObtenerCanjesParams = {
+    page?: number | string;
+    limit?: number | string;
+    distribuidora_id?: number | string;
+};
+
+export async function obtenerCanjes(params: ObtenerCanjesParams = {}, token?: string) {
+    try {
+        const { page = 1, limit = 15, distribuidora_id } = params;
+        const queryParams: Record<string, string> = { page: String(page), limit: String(limit) };
+        if (distribuidora_id !== undefined && distribuidora_id !== null && distribuidora_id !== '') {
+            queryParams.distribuidora_id = String(distribuidora_id);
+        }
+
+        const response = await api.get('api/cajeras/canjes', {
+            params: queryParams,
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        return response?.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+// ---- Endpoints de vales (consulta y registro de pagos) ----
+
+export type ObtenerValesParams = {
+    page?: number | string;
+    limit?: number | string;
+    estado?: string;
+    search?: string;
+};
+
+export async function obtenerVales(params: ObtenerValesParams = {}, token?: string) {
+    try {
+        const { page = 1, limit = 15, estado, search } = params;
+        const queryParams: Record<string, string> = { page: String(page), limit: String(limit) };
+        if (estado) queryParams.estado = estado;
+        if (search) queryParams.search = search;
+
+        const response = await api.get('api/vales/obtener', {
+            params: queryParams,
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        return response?.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+export async function obtenerDetalleVale(id: number | string, token?: string) {
+    try {
+        const response = await api.get(`api/vales/detalle/${id}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        return response?.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+export async function registrarPago(pagoId: number | string, token?: string) {
+    try {
+        const response = await api.post(`api/vales/pagos/registrar/${pagoId}`, {}, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        return response?.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
+
+export async function registrarPagoDistribuidora(pagoId: number | string, metodo_pago: string, token?: string) {
+    try {
+        const response = await api.post(`api/vales/pagos-distribuidora/registrar/${pagoId}`, { metodo_pago }, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        return response?.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response) {
+            return error.response.data;
+        }
+        throw error;
+    }
+}
 
 export default api;

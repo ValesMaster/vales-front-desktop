@@ -3,6 +3,23 @@
 import { FormEvent, useState } from "react";
 import { login } from "../api/routes";
 
+function getRoleFromToken(token: string): string | null {
+  try {
+    const base64Payload = token.split(".")[1];
+    if (!base64Payload) return null;
+
+    const normalized = base64Payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/")
+      .padEnd(Math.ceil(base64Payload.length / 4) * 4, "=");
+    const payload = JSON.parse(atob(normalized));
+    const rol = payload?.rol;
+    return typeof rol === "string" ? rol.trim().toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,6 +44,14 @@ export default function Login() {
       if (response?.status === 400 || response?.data?.message || response?.data?.error) {
         setError(response?.data?.message || response?.data?.error || "Credenciales inválidas.");
         setIsLoading(false);
+        return;
+      }
+
+      if (response?.step === "COMPLETED" && response?.accessToken) {
+        localStorage.setItem("token", response.accessToken);
+
+        const role = getRoleFromToken(response.accessToken);
+        window.location.href = role === "cajero" ? "/cajero" : "/gerente-general";
         return;
       }
 
