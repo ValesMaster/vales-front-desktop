@@ -31,6 +31,11 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
+        // Rutas protegidas con requireVpn en el backend exigen este header.
+        // Se manda siempre; es el balanceador de carga quien decide si lo
+        // conserva (trafico que de verdad viene de la VPN) o lo sobreescribe
+        // (trafico publico) antes de que llegue a la API.
+        'x-via-vpn': 'true',
     },
 });
 

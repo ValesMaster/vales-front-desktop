@@ -4,6 +4,14 @@ import { useEffect, useState, use as usePromise } from "react";
 import { useRouter } from "next/navigation";
 import { obtenerDetalleVale, registrarPago, registrarPagoDistribuidora } from "../../../api/routes";
 
+type PagoEstimado = {
+    pagable: boolean;
+    incluyeAtrasoAnterior: boolean;
+    multaEstimada: number;
+    montoSiSePagaHoy: number;
+    tipoComportamientoEstimado: string;
+};
+
 type Pago = {
     id: number;
     quincena: number;
@@ -15,6 +23,7 @@ type Pago = {
     multaGenerada: string | number | null;
     estadoMulta: string | null;
     tipoComportamiento: string | null;
+    estimado: PagoEstimado | null;
 };
 
 type PagoDistribuidora = {
@@ -355,30 +364,43 @@ export default function CajeroValeDetallePage({ params }: { params: Promise<{ id
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {pagosOrdenados.map((pago) => (
-                                        <tr key={pago.id} className="border-t border-[#4f434b]">
-                                            <td className="px-4 py-3">{pago.quincena}</td>
-                                            <td className="px-4 py-3">{formatFecha(pago.fechaCorte)}</td>
-                                            <td className="px-4 py-3">{formatMoney(pago.cantidadAPagar)}</td>
-                                            <td className="px-4 py-3">
-                                                <span className="rounded-full border border-[#4f434b] bg-[#2d253d] px-3 py-1 text-xs font-semibold text-[#EAA5A7]">
-                                                    {pago.estado}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
-                                                {pago.estado === 'PENDIENTE' && pago.id === siguientePagoPendiente?.id ? (
-                                                    <button
-                                                        type="button"
-                                                        disabled={registrando === pago.id}
-                                                        onClick={() => handleRegistrarPago(pago.id)}
-                                                        className="rounded-xl bg-[#844a79] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                                                    >
-                                                        {registrando === pago.id ? 'Registrando...' : `Cobrar ${formatMoney(pago.cantidadAPagar)}`}
-                                                    </button>
-                                                ) : null}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {pagosOrdenados.map((pago) => {
+                                        const conAtraso = pago.estado === 'PENDIENTE' && pago.estimado?.incluyeAtrasoAnterior;
+                                        const montoAMostrar = conAtraso ? pago.estimado!.montoSiSePagaHoy : pago.cantidadAPagar;
+
+                                        return (
+                                            <tr key={pago.id} className="border-t border-[#4f434b]">
+                                                <td className="px-4 py-3">{pago.quincena}</td>
+                                                <td className="px-4 py-3">{formatFecha(pago.fechaCorte)}</td>
+                                                <td className="px-4 py-3">
+                                                    {formatMoney(montoAMostrar)}
+                                                    {conAtraso ? (
+                                                        <p className="mt-1 text-xs text-[#ffb4ab]">
+                                                            Incluye quincena {pago.quincena - 1} vencida + multa de {formatMoney(pago.estimado!.multaEstimada)}
+                                                            <br />(monto normal: {formatMoney(pago.cantidadAPagar)})
+                                                        </p>
+                                                    ) : null}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <span className="rounded-full border border-[#4f434b] bg-[#2d253d] px-3 py-1 text-xs font-semibold text-[#EAA5A7]">
+                                                        {pago.estado}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    {pago.estado === 'PENDIENTE' && pago.id === siguientePagoPendiente?.id ? (
+                                                        <button
+                                                            type="button"
+                                                            disabled={registrando === pago.id}
+                                                            onClick={() => handleRegistrarPago(pago.id)}
+                                                            className="rounded-xl bg-[#844a79] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                                                        >
+                                                            {registrando === pago.id ? 'Registrando...' : `Cobrar ${formatMoney(montoAMostrar)}`}
+                                                        </button>
+                                                    ) : null}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </section>
